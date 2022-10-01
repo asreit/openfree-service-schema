@@ -1,12 +1,12 @@
 package de.ar.openfree.schemaorg;
 
 
-import de.ar.openfree.schemaorg.repository.PropertyRepository;
-import de.ar.openfree.schemaorg.repository.VocabRepository;
-import de.ar.openfree.schemaorg.repository.TypeRepository;
-import de.ar.openfree.schemaorg.schema.Property;
-import de.ar.openfree.schemaorg.schema.Vocab;
-import de.ar.openfree.schemaorg.schema.Type;
+import de.ar.openfree.schemaorg.jpa.property.JpaProperty;
+import de.ar.openfree.schemaorg.jpa.property.JpaPropertyRepository;
+import de.ar.openfree.schemaorg.jpa.type.JpaType;
+import de.ar.openfree.schemaorg.jpa.type.JpaTypeRepository;
+import de.ar.openfree.schemaorg.jpa.vocab.JpaVocab;
+import de.ar.openfree.schemaorg.jpa.vocab.JpaVocabRepository;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -28,10 +28,11 @@ public class SchemaorgApplication {
             @Override
             public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config, CorsRegistry cors) {
                 config.withEntityLookup()
-                        .forRepository(PropertyRepository.class, Property::getLabel, PropertyRepository::findByLabel)
-                        .forRepository(VocabRepository.class, Vocab::getLabel, VocabRepository::findByLabel)
-                        .forRepository(TypeRepository.class, Type::getLabel, TypeRepository::findByLabel);
+                        .forRepository(JpaPropertyRepository.class, JpaProperty::getLabel, JpaPropertyRepository::findByLabel)
+                        .forRepository(JpaTypeRepository.class, JpaType::getLabel, JpaTypeRepository::findByLabel)
+                        .forRepository(JpaVocabRepository.class, JpaVocab::getLabel, JpaVocabRepository::findByLabel);
             }
         };
     }
+
 }
