@@ -1,10 +1,9 @@
-package de.ar.openfree.schemaorg.service;
+package de.ar.openfree.schemaorg.utils;
 
-import de.ar.openfree.schemaorg.repository.PropertyRepository;
-import de.ar.openfree.schemaorg.repository.TypeRepository;
-import de.ar.openfree.schemaorg.schema.Property;
-import de.ar.openfree.schemaorg.schema.Type;
-import de.ar.openfree.schemaorg.semantics.CsvReader;
+import de.ar.openfree.schemaorg.Property;
+import de.ar.openfree.schemaorg.PropertyRepository;
+import de.ar.openfree.schemaorg.Type;
+import de.ar.openfree.schemaorg.TypeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
@@ -51,14 +50,14 @@ public class ImportSchemaOrg implements CommandLineRunner {
 
         var propertyMap = new HashMap<String, Property>();
         for (var data : props) {
-            var property = Property.builder()
+            var property = propertyRepository.createProperty()
                     .comment(data.get("comment"))
                     .equivalentProperty(mapToValue(data, "equivalentProperty"))
                     .isPartOfString(mapToValue(data, "isPartOf"))
                     .label(mapToValue(data, "label"))
                     .url(mapToValue(data, "id"))
-                    .build();
-            propertyMap.put(property.getUrl(), propertyRepository.save(property));
+                    .save();
+            propertyMap.put(property.getUrl(), property);
         }
 
         log.info("Create Schema.org types... [url={}]", typesResourceURL);
@@ -68,39 +67,41 @@ public class ImportSchemaOrg implements CommandLineRunner {
 
         var typeMap = new HashMap<String, Type>();
         for (var data : types) {
-            var type = Type.builder()
+            var type = typeRepository.createType()
                     .comment(mapToValue(data, "comment"))
                     .equivalentClass(mapToValue(data, "equivalentProperty"))
                     .isPartOfString(mapToValue(data, "isPartOf"))
                     .label(mapToValue(data, "label"))
                     .url(mapToValue(data, "id"))
-                    .build();
-            typeMap.put(type.getUrl(), typeRepository.save(type));
+                    .save();
+            typeMap.put(type.getUrl(), type);
         }
 
         log.info("Linking Properties...");
         for (var data : props) {
             var prop = propertyMap.get(data.get("id"));
-            prop.setDomainIncludes(mapTypeReference(typeMap, data.get("domainIncludes")));
-            prop.setInverseOf(mapPropReference(propertyMap, data.get("inverseOf")));
-            prop.setRangeIncludes(mapTypeReferences(typeMap, data.get("rangeIncludes")));
-            prop.setSubproperties(mapPropReferences(propertyMap, data.get("subProperties")));
-            prop.setSubPropertyOf(mapPropReference(propertyMap, data.get("subPropertyOf")));
-            prop.setSupersededBy(mapPropReferences(propertyMap, data.get("supersededBy")));
-            prop.setSupersedes(mapPropReference(propertyMap, data.get("supersedes")));
-            propertyRepository.save(prop);
+            propertyRepository.mutateProperty(prop)
+                    .domainIncludes(mapTypeReference(typeMap, data.get("domainIncludes")))
+                    .inverseOf(mapPropReference(propertyMap, data.get("inverseOf")))
+                    .rangeIncludes(mapTypeReferences(typeMap, data.get("rangeIncludes")))
+                    .subproperties(mapPropReferences(propertyMap, data.get("subProperties")))
+                    .subPropertyOf(mapPropReference(propertyMap, data.get("subPropertyOf")))
+                    .supersededBy(mapPropReferences(propertyMap, data.get("supersededBy")))
+                    .supersedes(mapPropReference(propertyMap, data.get("supersedes")))
+                    .save();
         }
 
         log.info("Linking Types...");
         for (var data : types) {
             var type = typeMap.get(data.get("id"));
-            type.setEnumerationtype(typeMap.get(data.get("enumerationtype")));
-            type.setProperties(mapPropReferences(propertyMap, data.get("properties")));
-            type.setSubTypeOf(mapTypeReference(typeMap, data.get("subTypeOf")));
-            type.setSubTypes(mapTypeReferences(typeMap, data.get("subTypes")));
-            type.setSupersededBy(mapTypeReferences(typeMap, data.get("supersededBy")));
-            type.setSupersedes(mapTypeReference(typeMap, data.get("supersedes")));
-            typeRepository.save(type);
+            typeRepository.mutateType(type)
+                    .enumerationtype(typeMap.get(data.get("enumerationtype")))
+                    .properties(mapPropReferences(propertyMap, data.get("properties")))
+                    .subTypeOf(mapTypeReference(typeMap, data.get("subTypeOf")))
+                    .subTypes(mapTypeReferences(typeMap, data.get("subTypes")))
+                    .supersededBy(mapTypeReferences(typeMap, data.get("supersededBy")))
+                    .supersedes(mapTypeReference(typeMap, data.get("supersedes")))
+                    .save();
         }
 
         var duration = Duration.between(startTime, Instant.now());
@@ -110,12 +111,12 @@ public class ImportSchemaOrg implements CommandLineRunner {
     private List<Map<String, String>> readCSV(URL url, Iterable<String> columns) {
         return new CsvReader().readWithColumns(url, columns);
     }
-    
+
     private String mapToValue(Map<String, String> data, String s) {
-        if(Strings.isBlank(s)) {
+        if (Strings.isBlank(s)) {
             return null;
         }
-        
+
         var value = data.get(s);
         return Strings.isBlank(value) ? null : value.strip();
     }
@@ -144,7 +145,7 @@ public class ImportSchemaOrg implements CommandLineRunner {
         if (Strings.isBlank(s)) {
             return Collections.emptyList();
         }
-        
+
         return Arrays.stream(s.split(" "))
                 .map(String::strip)
                 .map(typeMap::get)

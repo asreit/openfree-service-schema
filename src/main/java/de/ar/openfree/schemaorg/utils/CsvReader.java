@@ -1,4 +1,4 @@
-package de.ar.openfree.schemaorg.semantics;
+package de.ar.openfree.schemaorg.utils;
 
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;

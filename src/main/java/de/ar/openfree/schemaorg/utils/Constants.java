@@ -1,4 +1,4 @@
-package de.ar.openfree.schemaorg.semantics;
+package de.ar.openfree.schemaorg.utils;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

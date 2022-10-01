@@ -1,5 +1,8 @@
-package de.ar.openfree.schemaorg.schema;
+package de.ar.openfree.schemaorg.jpa.vocab;
 
+import de.ar.openfree.schemaorg.jpa.element.JpaSchema;
+import de.ar.openfree.schemaorg.jpa.property.JpaProperty;
+import de.ar.openfree.schemaorg.jpa.type.JpaType;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -20,12 +23,12 @@ import java.util.List;
         @Index(name = "schema_label_idx", columnList = "label", unique = true),
         @Index(name = "schema_url_idx", columnList = "url", unique = true)
 })
-public class Vocab extends Element {
+public class JpaVocab extends JpaSchema {
 
     @OneToMany
-    private List<Type> types;
+    private List<JpaType> types;
 
     @OneToMany
-    private List<Property> properties;
+    private List<JpaProperty> properties;
 
 }

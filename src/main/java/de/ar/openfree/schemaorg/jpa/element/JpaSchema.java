@@ -1,5 +1,6 @@
-package de.ar.openfree.schemaorg.schema;
+package de.ar.openfree.schemaorg.jpa.element;
 
+import de.ar.openfree.schemaorg.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.Hibernate;
@@ -15,7 +16,7 @@ import java.util.Objects;
 @AllArgsConstructor
 @SuperBuilder
 @MappedSuperclass
-public abstract class Element {
+public abstract class JpaSchema implements Schema {
     @Id
     @GeneratedValue
     private Long id;
@@ -34,7 +35,7 @@ public abstract class Element {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Element element = (Element) o;
+        JpaSchema element = (JpaSchema) o;
         return id != null && Objects.equals(id, element.id);
     }
 
