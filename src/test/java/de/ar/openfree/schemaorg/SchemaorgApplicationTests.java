@@ -1,10 +1,10 @@
-package de.ar.openfree.services;
+package de.ar.openfree.schemaorg;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class ServicesApplicationTests {
+class SchemaorgApplicationTests {
 
 	@Test
 	void contextLoads() {
