@@ -1,0 +1,31 @@
+spring:
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+      settings:
+        web-allow-others: true
+  datasource:
+    #url: jdbc:h2:file:~/Desktop/openfree/data/testdb;AUTO_SERVER=TRUE
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password: 123
+  jpa:
+    show-sql: false
+    generate-ddl: true
+    hibernate:
+      ddl-auto: create
+    open-in-view: false
+
+management:
+  endpoints:
+    jmx:
+      exposure:
+        include: '*'
+    web:
+      exposure:
+        include: '*'
+
+logging:
+  level:
+    de.ar.openfree.storage.commands_: debug
