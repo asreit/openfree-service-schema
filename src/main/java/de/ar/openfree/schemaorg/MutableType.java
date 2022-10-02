@@ -20,5 +20,7 @@ public interface MutableType extends Mutable<Type>, MutableElement<MutableType> 
 
     MutableType isPartOfString(String isPartOfString);
 
+    MutableType vocab(Vocab vocab);
+
     Type save();
 }

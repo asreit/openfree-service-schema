@@ -1,5 +1,8 @@
 package de.ar.openfree.schemaorg.jpa.vocab;
 
+import de.ar.openfree.schemaorg.Property;
+import de.ar.openfree.schemaorg.Type;
+import de.ar.openfree.schemaorg.Vocab;
 import de.ar.openfree.schemaorg.jpa.element.JpaSchema;
 import de.ar.openfree.schemaorg.jpa.property.JpaProperty;
 import de.ar.openfree.schemaorg.jpa.type.JpaType;
@@ -23,12 +26,12 @@ import java.util.List;
         @Index(name = "schema_label_idx", columnList = "label", unique = true),
         @Index(name = "schema_url_idx", columnList = "url", unique = true)
 })
-public class JpaVocab extends JpaSchema {
+public class JpaVocab extends JpaSchema implements Vocab {
 
-    @OneToMany
-    private List<JpaType> types;
+    @OneToMany(mappedBy = "vocab", targetEntity = JpaProperty.class)
+    private List<Type> types;
 
-    @OneToMany
-    private List<JpaProperty> properties;
+    @OneToMany(mappedBy = "vocab", targetEntity = JpaProperty.class)
+    private List<Property> properties;
 
 }

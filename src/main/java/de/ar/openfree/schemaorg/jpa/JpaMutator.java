@@ -21,15 +21,28 @@ public class JpaMutator implements InvocationHandler, ChangeSet {
     private ChangeListener changeListener;
 
     JpaMutator(Schema adaptee_) {
+        this(adaptee_, null);
+    }
+
+    JpaMutator(Schema adaptee_, ChangeListener listener_) {
         adaptee = adaptee_;
         wrapper = new BeanWrapperImpl(adaptee);
         changes = new HashMap<>();
+        changeListener = listener_;
     }
 
-    public static <T extends Mutable<?>> Object newInstance(Schema adaptee, Class<T> cls) {
-        return Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
-                new Class[]{cls, ChangeSet.class},
-                new JpaMutator(adaptee));
+    public static <T extends Mutable<?>> T newInstance(Schema adaptee, Class<T> cls) {
+        return newInstance(adaptee, cls, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T extends Mutable<?>> T newInstance(
+            Schema adaptee,
+            Class<T> cls,
+            ChangeListener listener) {
+        return (T) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
+                new Class[]{cls},
+                new JpaMutator(adaptee, listener));
     }
 
     @Override
@@ -44,22 +57,18 @@ public class JpaMutator implements InvocationHandler, ChangeSet {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) {
-        switch (method.getName()) {
-            case "setChangeListener":
-                this.setChangeListener((ChangeListener) args[0]);
-                return null;
-            case "getChanges":
-                return this.getChanges();
-            case "save":
-                return this.save();
-            default:
-                return this.mutate(proxy, method, args);
+        if ("save".equals(method.getName())) {
+            return this.save();
         }
+        return this.mutate(proxy, method, args);
     }
 
     private Schema save() {
         changes.forEach((propertyName, change) -> this.wrapper.setPropertyValue(propertyName, change.getCurrentValue()));
-        changeListener.onChange(this);
+        if(changeListener != null) {
+            changeListener.onChange(this);
+            changeListener = null;
+        }
         return adaptee;
     }
 

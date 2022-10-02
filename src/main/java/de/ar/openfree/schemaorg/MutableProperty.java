@@ -22,6 +22,8 @@ public interface MutableProperty extends Mutable<Property>, MutableElement<Mutab
 
     MutableProperty isPartOfString(String isPartOfString);
 
+    MutableProperty vocab(Vocab vocab);
+
     Property save();
 
 }

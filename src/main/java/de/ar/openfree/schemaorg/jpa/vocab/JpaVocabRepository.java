@@ -8,4 +8,5 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 @RepositoryRestResource(excerptProjection = Schema.class,
         path = "vocabs", collectionResourceRel = "vocabs", itemResourceRel = "vocab")
 public interface JpaVocabRepository extends JpaRepository<JpaVocab, Long>, JpaSchemaRepository<JpaVocab> {
+
 }

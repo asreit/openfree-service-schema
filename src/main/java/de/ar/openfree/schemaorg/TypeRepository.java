@@ -1,6 +1,9 @@
 package de.ar.openfree.schemaorg;
 
 public interface TypeRepository {
+
+    MutableVocab createVocab();
+
     MutableType createType();
 
     MutableType mutateType(Long id);

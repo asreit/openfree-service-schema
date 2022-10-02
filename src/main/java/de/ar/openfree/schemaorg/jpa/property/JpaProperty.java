@@ -3,8 +3,10 @@ package de.ar.openfree.schemaorg.jpa.property;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import de.ar.openfree.schemaorg.Property;
 import de.ar.openfree.schemaorg.Type;
+import de.ar.openfree.schemaorg.Vocab;
 import de.ar.openfree.schemaorg.jpa.element.JpaSchema;
 import de.ar.openfree.schemaorg.jpa.type.JpaType;
+import de.ar.openfree.schemaorg.jpa.vocab.JpaVocab;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -24,6 +26,9 @@ import java.util.List;
 })
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class JpaProperty extends JpaSchema implements Property {
+
+    @ManyToOne(targetEntity = JpaVocab.class)
+    private Vocab vocab;
 
     private String equivalentProperty;
 

@@ -20,4 +20,6 @@ public interface Type extends Schema {
     Type getSupersedes();
 
     List<Type> getSupersededBy();
+
+    Vocab getVocab();
 }

@@ -5,6 +5,8 @@ import de.ar.openfree.schemaorg.jpa.property.JpaProperty;
 import de.ar.openfree.schemaorg.jpa.property.JpaPropertyRepository;
 import de.ar.openfree.schemaorg.jpa.type.JpaType;
 import de.ar.openfree.schemaorg.jpa.type.JpaTypeRepository;
+import de.ar.openfree.schemaorg.jpa.vocab.JpaVocab;
+import de.ar.openfree.schemaorg.jpa.vocab.JpaVocabRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -12,10 +14,30 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class JpaRepositoryAdapter implements TypeRepository, PropertyRepository {
+public class JpaRepositoryAdapter implements VocabRepository, TypeRepository, PropertyRepository {
 
+    private final JpaVocabRepository vocabRepository;
     private final JpaTypeRepository typeRepository;
     private final JpaPropertyRepository propertyRepository;
+
+    public MutableVocab createVocab() {
+        return mutableVocab(new JpaVocab());
+    }
+
+    @Override
+    public boolean deleteVocab(Long id) {
+        if(vocabRepository.existsById(id)) {
+            vocabRepository.deleteById(id);
+            return true;
+        }
+        return false;
+    }
+
+    private MutableVocab mutableVocab(JpaVocab vocab) {
+        return JpaMutator.newInstance(vocab,
+                MutableVocab.class,
+                changeSet -> vocabRepository.save(vocab));
+    }
 
     public MutableType createType() {
         return mutateType(new JpaType());
@@ -26,15 +48,9 @@ public class JpaRepositoryAdapter implements TypeRepository, PropertyRepository 
     }
 
     public MutableType mutateType(Type type) {
-        var mutator = JpaMutator.newInstance(type, MutableType.class);
-        ((ChangeSet) mutator).setChangeListener(changeSet -> {
-            if (type.getLabel() == null) {
-                log.error("Label is null", type);
-            }
-            typeRepository.save((JpaType) type);
-            changeSet.setChangeListener(null);
-        });
-        return (MutableType) mutator;
+        return JpaMutator.newInstance(type,
+                MutableType.class,
+                changeSet -> typeRepository.save((JpaType) type));
     }
 
     public boolean deleteType(Long id) {
@@ -57,15 +73,9 @@ public class JpaRepositoryAdapter implements TypeRepository, PropertyRepository 
 
     @Override
     public MutableProperty mutateProperty(Property property) {
-        var mutator = JpaMutator.newInstance(property, MutableProperty.class);
-        ((ChangeSet) mutator).setChangeListener(changeSet -> {
-            if (property.getLabel() == null) {
-                log.error("Label is null", property);
-            }
-            propertyRepository.save((JpaProperty) property);
-            changeSet.setChangeListener(null);
-        });
-        return (MutableProperty) mutator;
+        return JpaMutator.newInstance(property,
+                MutableProperty.class,
+                changeSet -> propertyRepository.save((JpaProperty) property));
     }
 
     @Override

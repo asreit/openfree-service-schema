@@ -4,8 +4,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import de.ar.openfree.schemaorg.Property;
 import de.ar.openfree.schemaorg.Type;
+import de.ar.openfree.schemaorg.Vocab;
 import de.ar.openfree.schemaorg.jpa.element.JpaSchema;
 import de.ar.openfree.schemaorg.jpa.property.JpaProperty;
+import de.ar.openfree.schemaorg.jpa.vocab.JpaVocab;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -27,6 +29,9 @@ import java.util.stream.Collectors;
 })
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class JpaType extends JpaSchema implements Type {
+
+    @ManyToOne(targetEntity = JpaVocab.class)
+    private Vocab vocab;
 
     @OneToOne(targetEntity = JpaType.class)
     private Type enumerationtype;

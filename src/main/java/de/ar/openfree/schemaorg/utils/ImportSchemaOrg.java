@@ -1,9 +1,6 @@
 package de.ar.openfree.schemaorg.utils;
 
-import de.ar.openfree.schemaorg.Property;
-import de.ar.openfree.schemaorg.PropertyRepository;
-import de.ar.openfree.schemaorg.Type;
-import de.ar.openfree.schemaorg.TypeRepository;
+import de.ar.openfree.schemaorg.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
@@ -27,6 +24,8 @@ public class ImportSchemaOrg implements CommandLineRunner {
     private final PropertyRepository propertyRepository;
     private final TypeRepository typeRepository;
 
+    private final VocabRepository vocabRepository;
+
     private final List<String> typeColumns = Arrays.asList("id", "label", "comment", "subTypeOf", "enumerationtype",
             "equivalentClass", "properties", "subTypes", "supersedes", "supersededBy", "isPartOf");
     private final List<String> propColumns = Arrays.asList("id", "label", "comment", "subPropertyOf", "equivalentProperty",
@@ -45,6 +44,12 @@ public class ImportSchemaOrg implements CommandLineRunner {
         var startTime = Instant.now();
         log.info("Create Schema.org properties... [url={}]", propsResourceURL);
 
+        var vocab = vocabRepository.createVocab()
+                .comment("Schema.org is a collaborative, community activity with a mission to create, maintain, and promote schemas for structured data on the Internet, on web pages, in email messages, and beyond.")
+                .label("schema.org")
+                .url("http://schema.org")
+                .save();
+
         var props = readCSV(propsResourceURL, propColumns);
         props.remove(0);
 
@@ -55,6 +60,7 @@ public class ImportSchemaOrg implements CommandLineRunner {
                     .equivalentProperty(mapToValue(data, "equivalentProperty"))
                     .isPartOfString(mapToValue(data, "isPartOf"))
                     .label(mapToValue(data, "label"))
+                    .vocab(vocab)
                     .url(mapToValue(data, "id"))
                     .save();
             propertyMap.put(property.getUrl(), property);
@@ -72,6 +78,7 @@ public class ImportSchemaOrg implements CommandLineRunner {
                     .equivalentClass(mapToValue(data, "equivalentProperty"))
                     .isPartOfString(mapToValue(data, "isPartOf"))
                     .label(mapToValue(data, "label"))
+                    .vocab(vocab)
                     .url(mapToValue(data, "id"))
                     .save();
             typeMap.put(type.getUrl(), type);

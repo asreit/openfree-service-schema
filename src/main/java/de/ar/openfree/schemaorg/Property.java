@@ -32,4 +32,6 @@ public interface Property extends Schema {
     List<Property> getSupersededBy();
 
     String getIsPartOfString();
+
+    Vocab getVocab();
 }
