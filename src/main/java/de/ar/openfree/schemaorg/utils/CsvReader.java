@@ -10,31 +10,17 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class CsvReader {
-
-    public List<String> readLines(URL url) {
-        var mapper = new CsvMapper();
-        try {
-            MappingIterator<String> it = mapper.readerForListOf(String.class).with(CsvParser.Feature.WRAP_AS_ARRAY).readValues(url);
-            return it.readAll();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public List<Map<String, String>> readWithColumns(URL url, String... columns) {
-        return this.readWithColumns(url, Arrays.asList(columns));
-    }
 
     public List<Map<String, String>> readWithColumns(URL url, Iterable<String> columns) {
         var schemaBuilder = CsvSchema.builder();
         columns.forEach(schemaBuilder::addColumn);
 
-        var schema = schemaBuilder.build();
+        var schema = schemaBuilder.setSkipFirstDataRow(true).build();
         var mapper = new CsvMapper();
-        try {
-            MappingIterator<Map<String, String>> it = mapper.readerForMapOf(String.class).with(schema).readValues(url);
+        try (MappingIterator<Map<String, String>> it = mapper.readerForMapOf(String.class).with(schema).readValues(url)) {
             return it.readAll();
         } catch (IOException e) {
             throw new RuntimeException(e);

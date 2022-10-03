@@ -1,12 +1,8 @@
 package de.ar.openfree.schemaorg;
 
 
-import de.ar.openfree.schemaorg.jpa.property.JpaProperty;
-import de.ar.openfree.schemaorg.jpa.property.JpaPropertyRepository;
-import de.ar.openfree.schemaorg.jpa.type.JpaType;
-import de.ar.openfree.schemaorg.jpa.type.JpaTypeRepository;
-import de.ar.openfree.schemaorg.jpa.vocab.JpaVocab;
-import de.ar.openfree.schemaorg.jpa.vocab.JpaVocabRepository;
+import de.ar.openfree.schemaorg.impl.PropertyEntity;
+import de.ar.openfree.schemaorg.impl.TypeEntity;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -27,10 +23,8 @@ public class SchemaorgApplication {
         return new RepositoryRestConfigurer() {
             @Override
             public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config, CorsRegistry cors) {
-                config.withEntityLookup()
-                        .forRepository(JpaPropertyRepository.class, JpaProperty::getLabel, JpaPropertyRepository::findByLabel)
-                        .forRepository(JpaTypeRepository.class, JpaType::getLabel, JpaTypeRepository::findByLabel)
-                        .forRepository(JpaVocabRepository.class, JpaVocab::getLabel, JpaVocabRepository::findByLabel);
+                cors.addMapping("/**").allowedMethods("*").allowedOriginPatterns("*");
+                config.exposeIdsFor(TypeEntity.class, PropertyEntity.class);
             }
         };
     }
